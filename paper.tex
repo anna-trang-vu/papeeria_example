@@ -38,16 +38,18 @@ This article presents the modelling and control of the ITER Gas Injection System
 \section{Introduction}
 The ITER Gas Injection System (GIS)\cite{GIS_2012} is the system responsible for supplying gas to the vacuum vessel, mainly for fuelling and plasma radiation enhancement purposes. It will play a key role in the plasma density control performed by the Plasma Control System (PCS) \cite{deVries2024}. This work focuses on the modelling and control of the ITER GIS, with particular attention to the valves that supply gas to the vacuum vessel. The main challenge in control of the GIS is given by the significant delay introduced into the system by the length of the pipes from 17 to 40 m connecting the fuelling valves to the vacuum vessel.
 
-This work proposes accurate models and an advanced control algorithm to guarantee the performance of the GIS. 
-The port-Hamiltonian approach \cite{maschke1993port,schaft2020}, with its modular feature and stability analysis advantages, is an appropriate method for modelling of multiphysic systems, such as the GIS. Different from the levitated ball system in \cite{schaft2020},Sec.2.6, non-linear coupling is considered between the mechanical and electrical domains in this application.
+% add motivation from Michael Walsh's comment
+From a practical perspective, this diffusion system can be viewed as a basic proportional model with an associated delay. However, the delay is not constant and varies based on several factors, including the type of gas valve, the specific gas species, temperature, and more. Additionally, the delay is further influenced by the length of the pipe. As a result, the delay observed from experimental data may not fully capture the system’s behavior, particularly under varying control commands, such as those used for density control. Therefore, this study proposes the development of precise models and an advanced control algorithm to ensure the optimal performance of the GIS.
+The port-Hamiltonian approach \cite{maschke1993port,schaft2020}, with its modular feature and stability analysis advantages, is an appropriate method for modelling of multiphysic systems, such as the GIS. Different from the levitated ball system in \cite{schaft2020}, Sec.2.6, non-linear coupling is considered between the mechanical and electrical domains in this application.
 
-The control strategy Interconnection and Damping Assignment - Passivity Based Control (IDA-PBC) proposed in this paper was initially presented in \cite{IDAPBC}. Control of a similarly class of the considered systems has been discussed in \cite{PHintro, weakcouple}. The solutions in the aforementioned rely on the linear structure of the considered systems, which is not present in the case discussed in this paper. In \cite{integralIDA} it is shown that integral control can be combined with the IDA-PBC technique to improve robustness of the control. 
-The IDA-PBC control algorithm developed in this work requires a full knowledge of the system states, therefore, an observer is also designed for the valve to reconstruct the these states from the gas flow measurement at the valve output.
+The control strategy Interconnection and Damping Assignment - Passivity Based Control (IDA-PBC) proposed in this paper was initially presented in \cite{IDAPBC}. Control of a similarly class of the considered systems has been discussed in \cite{PHintro, weakcouple}. 
+% The solutions in the aforementioned rely on the linear structure of the considered systems, which is not present in the case discussed in this paper. ==> A.Vu: What does it mean?
+In \cite{integralIDA} it is shown that integral control can be combined with the IDA-PBC technique to improve robustness of the control. 
+This model-based control technique requires complete knowledge of the system states. To achieve this, an observer is designed for the valve to reconstruct these states using the gas flow measurements taken at the valve output.
 
 The proposed valve model is implemented in the ITER simulation platform PCSSP \cite{Ravensbergen2023} and validated with experimental data from the testbench at the South Western Institute of Physics (SWIP). The control algorithm is implemented and tested in simulation.
  
 The rest of the paper is organized as follows: section \ref{sec:overview} gives an overview of the ITER GIS and the proposed control scheme, section \ref{sec:vlvmdl} describes the modelling of the valves in the GIS and displays the obtained results, section \ref{sec:pipemdl} describes the adopted model for the pipes connecting the valves to the vacuum vessel, section \ref{sec:ctrl} describes the proposed control scheme and displays its performance in simulation, and lastly section \ref{sec:conclusion} concludes the paper.
-
 
 \section{ITER GIS overview and control scheme}\label{sec:overview}
 The GIS is composed of 10 Gas Valve Boxes (GVB),  6 at the divertor (bottom) level and 4 at the upper port level, (see Fig. \ref{fig:GIS}) \cite{GIS_2012}. Each GVB consisting of 6 Mass Flow Controlled (MFC) valves for different species, and the pipe system connecting the GVBs to the vacuum vessel (VV), Fig. \ref{fig:GIS_scheme}.
@@ -149,16 +151,16 @@ Following PH system theory the mechanical and electromechanical subsystems can b
 \end{align}
 The dynamic equations of the system can be expressed as
 
-\begin{align}
-    \dot{x} = [J-R]\frac{\partial H}{\partial x} + gu
-\end{align}\label{eq:plunger_original_PCH}
+\begin{equation}
+    \dot{x} = [J-R]\frac{\partial H}{\partial x} + gu \label{eq:plunger_original_PCH}
+\end{equation}
 with $x = \begin{bmatrix}
     x_m & x_e
 \end{bmatrix}^\top$, $g=\begin{bmatrix}
     0 & 0 & 1
 \end{bmatrix}^\top$ and $u=v_{in}$
 
-\subsection{Flow characteristic approximation model}
+\subsection{Flow characteristic approximation model}\label{sec:flow_charac}
 The valve is approximated as varying conductance between two pipes. The particle flow, expressed in $[\unit{Pa\,m^{3}\,s^{-1}}]$ is given by Bernoulli's equation:
 \begin{align}
     Q = \frac{RT}{M} \frac{C_d}{\sqrt{1-\beta^4}}\varepsilon\frac{\pi}{4}d^2\sqrt{2(P_{up}-P_{down})\rho}
@@ -204,14 +206,14 @@ The MFC valve model, including the plunger dynamics and the flow characteristic,
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.4\textwidth]{H2_model.pdf}
-    \caption{Comparison of simulated high flow valve with experimental data, $H_2$}
+    \caption{Comparison of simulated high flow valve with experimental data for $H_2$ }
     \label{fig:mdl_H2}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.4\textwidth]{Ar_model.pdf}
-    \caption{Comparison of simulated high flow valve with experimental data, $Ar$}
+    \caption{Comparison of simulated high flow valve with experimental data for $Ar$}
     \label{fig:mdl_Ar}
 \end{figure}
 
@@ -255,7 +257,7 @@ The control scheme for the valve is composed of two main components: an observer
 % explain that observer itself is not taken into account  in the control design algo. Only the observer result is used 
 
 \subsection{Observer}
-In order to build the observer the state is extended by adding the flow rate measured by the flow sensor as it has dynamic behaviour wrt the state of the plunger, and is renamed $\xi = [x \ Q_m]^\top$ with $Q_m$ the measured flow rate.
+In order to build the observer, the system state is extended by adding the flow rate measured by the flow sensor as it has dynamic behaviour w.r.t the state of the plunger, and is renamed $\xi = [x \ Q_m]^\top$ with $Q_m$ the measured flow rate.
 The chosen structure for the observer is that of a Luenberger observer with added integral action:
 \begin{align}
     \hat{\xi}_{k+1} = f_d(\hat{\xi}_k, u_k) + K_P(\hat{y}-y) + K_I \displaystyle\sum_{t=0}^{k}(\hat{y}-y)
@@ -264,7 +266,7 @@ where $f_d$ is the discretized valve dynamics, obtained through the Runge-Kutta 
 
 %In Figure \ref{fig:flowhat} the behaviour of the observer with white noise on the flow measurement is displayed for a high flow valve, while in Figure \ref{fig:flowhat_F} the behaviour of the observer when a force step is applied to the plunger at $t=3s$ can be seen.
 %As can be seen in the disturbed case (Fig. \ref{fig:flowhat_F}) plunger momentum and flux linkage estimates do not converge to the real values. This is not a problem as the controller only needs to ensure that the plunger position reaches its reference to achieve the desired flow rate.
-The observer can perfectly estimate the system state with white noise on the flow measurement. With a disturbance of a force step applied to the plunger at $t=3s$ Fig. \ref{fig:flowhat_F}, plunger momentum and flux linkage estimates do not converge to the real values. However, this offset does not impact the control effect, as the control law relies solely on the plunger position.
+The observer can perfectly estimate the system state with white noise on the flow measurement. With a disturbance of a force step applied to the plunger at $t=3s$ in Fig. \ref{fig:flowhat_F}, plunger momentum and flux linkage estimates do not converge to the real values. However, this offset does not impact the control effect, as the control law relies solely on the plunger position.
 
 %\begin{figure}[!ht]
 %    \includegraphics[width=0.48\textwidth]{combined_plots_obs.pdf}
@@ -281,21 +283,22 @@ The observer can perfectly estimate the system state with white noise on the flo
 \subsection{Reference Generation}
 % * <vu.nmtrang@gmail.com> 16:02:51 10 Feb 2025 UTC+0100:
 % may put this subsec before the controller design?
-The designed controller focuses on controlling the plunger subsystem. As such, it tracks references for the state of the plunger as described in subsection \ref{sec:plung}. In order for the controller to be of use for the control system, it is therefore to be taken into account that references for the control system are given in terms of flow rate. It is therefore necessary to translate flow references into references for the state of the plunger. This can be achieved by inverting the flow characteristic of the valve, obtaining the desired plunger position. The open loop valve dynamics can then be solved to find the required steady state flux linkage, and for static references the desired momentum will be 0.
+The designed controller is focused on regulating the plunger subsystem, tracking references for the plunger state as outlined in subsection \ref{sec:plung}. It is important to note that reference for the system is provided in terms of flow rate, while the reference for the plunger subsystem is the valve position. As a result, it is necessary to convert the flow reference into corresponding reference for the plunger state. This can be achieved by inverting the valve’s flow characteristic, \ref{sec:flow_charac} to determine the desired plunger position. The open-loop valve dynamics can then be solved to find the required steady-state flux linkage, and for static references, the desired momentum will be zero.
 
 \subsection{Valve position control using IDA-PBC}
 Control is developed for the plunger model, the electromechanical subsystem described in subsection \ref{sec:plung}.
-By taking advantages of the PCH formulation of the plunger model, the chosen control scheme is IDA-PBC \cite{IDAPBC}, following the Algebraic approach to solving the matching equation. The main idea is to 'transform' the original system \ref{original_PCH} to a target PCH system via the control input $u$. 
+By taking advantages of the PCH formulation of the plunger model, the chosen control scheme is IDA-PBC \cite{IDAPBC}, following the Algebraic approach to solving the matching equation. The main idea is to `transform' the original system \eqref{eq:plunger_original_PCH} to a target PCH system via the control input $u$. 
 \begin{equation}
     \begin{aligned}
     \dot{x} &=& [J-R]\frac{\partial H}{\partial x} + gu &=& [J_{d}- R_{d}]\frac{\partial H_{d}}{\partial x}
-\end{aligned}
-\end{equation}\label{eq:IDA_principle}
+\end{aligned}\label{eq:IDA_principle}
+\end{equation}
 
 A quadratic energy function which has the minimum at the equilibrium is selected as the target Hamiltonian:
 \begin{align}
     H_d(q,p,\varphi) = \frac{\gamma_1}{2} (q-q^\star)^2 + \frac{p^2}{2m} + \frac{\gamma_2}{2}(\varphi-\varphi^\star)^2
-\end{align}\label{eq:Hd}
+    \label{eq:Hd}
+\end{align}
 A general form for the desired interconnection skew symmetric ($J_d$) and non negative damping ($R_d$) matrices is considered at first, along with a trivial option for the left annihilator of $g$:
 \begin{equation}
     \begin{aligned}
@@ -312,17 +315,17 @@ A general form for the desired interconnection skew symmetric ($J_d$) and non ne
         1 & 0 & 0\\ 
         0 & 1 & 0
     \end{bmatrix}
-\end{aligned}
-\end{equation}\label{eq:JRd}
+\end{aligned}\label{eq:JRd}
+\end{equation}
 % Alessandro: I would try to add a stability proof. Since the target is a journal and a rather theoretical conference, stating a result without a proof could be a risk.
 The stability of the closed loop is trivial:
 \begin{equation}
     \begin{aligned}
     \dot{H_{d}} = \frac{\partial^T H_{d}}{\partial x} \dot{x} &=& -\frac{\partial^T H_{d}}{\partial x} R_{d}\frac{\partial H}{\partial x}  \leq 0
-\end{aligned}
-\end{equation}\label{eq:IDA_stab}
+\end{aligned}\label{eq:IDA_stab}
+\end{equation}
 
-The matching condition between the original plunger system \eqref{eq:plunger_original_PCH} and the target closed loop system characterised by (\ref{eq:Hd}-\ref{eq:JRd}) thus yields a set of two equations:
+The matching condition \eqref{eq:IDA_principle} between the original system and the target closed loop system characterised by (\ref{eq:Hd}-\ref{eq:JRd}) thus yields a set of two equations:
 \begin{equation}
     \begin{aligned}
         \frac{p}{m} &= -r_{1} \gamma_{1}(q-q^\star) + J_{12} \frac{p}{m} + J_{13}\gamma_{2}(\varphi - \varphi^\star)     \\ 
@@ -343,7 +346,7 @@ leaving as freely assignable the parameters $\gamma_2$ and $r_3$, respectively r
         = -J_{2,3} \frac{p}{m} -r_{3}\gamma_{2}(\varphi -\varphi^\star) + \frac{R_{c}\varphi}{L(q)}
     \end{multlined}
 \end{equation}
-the control effort is singular for the desired equilibrium, in particular for $\varphi = \varphi^\star$. It is to be noted that in steady state, (one very relevant occasion in which $\varphi=\varphi^\star$), we would also have $p=0$. Solving the closed loop dynamics for steady state conditions, with the added caveat of considering $J_{23}=0$ when its denominator vanishes (thus giving a well defined value to the controller in that situation), yields the desired equilibrium. In practice, a threshold for $(\varphi-\varphi^\star)$ under which $J_{2,3}$ is set to 0 is chosen.
+the control effort is singular for the desired equilibrium, in particular for $\varphi = \varphi^\star$. Note that in steady state, (one very relevant occasion in which $\varphi=\varphi^\star$), we would also have $p=0$. Solving the closed loop dynamics for steady state conditions, with the added caveat of considering $J_{23}=0$ when its denominator vanishes (thus giving a well defined value to the controller in that situation), yields the desired equilibrium. In practice, a threshold for $(\varphi-\varphi^\star)$ under which $J_{2,3}$ is set to 0 is chosen.
 
 
 \begin{figure}[!ht]
@@ -381,8 +384,8 @@ The pipe model is then connected to the MFC model in the PCSSP. Fig. \ref{fig:ct
 % may put the following figures into 1 plot, to save space
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.4\textwidth]{ctrlsteps_H2_pipeout.png}
-    \includegraphics[width=0.4\textwidth]{ctrlsteps_Ar_pipeout.png}
+    \includegraphics[width=0.35\textwidth]{ctrlsteps_H2_pipeout.png}
+    \includegraphics[width=0.35\textwidth]{ctrlsteps_Ar_pipeout.png}
     \caption{Flow at the pipe output for $H_2$ (top) and $Ar$ (bottom)}
     \label{fig:ctrlstep_pipeout}
 \end{figure}
