@@ -2,9 +2,11 @@
 \usepackage{graphicx, amsmath, amsfonts, mathtools} 
 \usepackage{units}
 \usepackage{color}
+\pdfminorversion=4
 \date{}
 \graphicspath{ {./figs/} }
-
+%\theoremstyle{theorem}
+\newtheorem{proposition}{Proposition}
 % \makeatother
 
 \title{Gas Injection System modelling and control for ITER}
@@ -32,11 +34,11 @@
 
 \begin{abstract}
 
-This article presents the modelling and control of the ITER Gas Injection System. The non-linear models for both the valve and the pipe are formulated using the port-Hamiltonian approach. The primary focus of this study is the valve model, which incorporates both the mechanical and electrical domains, as well as the nonlinear coupling between them. An observer is designed for the valve to reconstruct the system states from the gas flow measurement at the valve output. A passivity-based controller is then developed to regulate gas flow into tokamak vacuum vessel. The valve model is implemented in the ITER simulation platform PCSSP and validated with experimental data. The control algorithm is implemented and tested in simulation.
+This article presents the modelling and control of the ITER Gas Injection System. The non-linear models for both the valve and the pipe are formulated using the port-Hamiltonian approach. The primary focus of this study is the valve model, which incorporates both the mechanical and electrical domains, as well as the nonlinear coupling between them. An observer is designed for the valve to reconstruct the system states from the gas flow measurement at the valve output. A passivity-based controller is then developed to regulate gas flow into the tokamak vacuum vessel. The valve model is implemented in the ITER simulation platform PCSSP and validated with experimental data. The control algorithm is implemented and tested in simulation.
 
 \end{abstract}
 \section{Introduction}
-The ITER Gas Injection System (GIS)\cite{GIS_2012} is the system responsible for supplying gas to the vacuum vessel, mainly for fuelling and plasma radiation enhancement purposes. It will play a key role in the plasma density control performed by the Plasma Control System (PCS) \cite{deVries2024}. This work focuses on the modelling and control of the ITER GIS, with particular attention to the valves that supply gas to the vacuum vessel. The main challenge in control of the GIS is given by the significant delay introduced into the system by the length of the pipes from 17 to 40 m connecting the fuelling valves to the vacuum vessel.
+The ITER Gas Injection System (GIS)\cite{GIS_2012} is responsible for supplying gas to the vacuum vessel, mainly for fueling and plasma radiation enhancement purposes. It will play a key role in the plasma density control performed by the Plasma Control System (PCS) \cite{deVries2024}. This work focuses on the modelling and control of the ITER GIS, with particular attention to the valves that supply gas to the vacuum vessel. The main challenge in control of the GIS is given by the significant delay introduced into the system by the length of the pipes from 17 to 40 m connecting the fuelling valves to the vacuum vessel.
 
 % add motivation from Michael Walsh's comment
 From a practical perspective, this diffusion system can be viewed as a basic proportional model with an associated delay. However, the delay is not constant and varies based on several factors, including the type of gas valve, the specific gas species, temperature, and more. Additionally, the delay is further influenced by the length of the pipe. As a result, the delay observed from experimental data may not fully capture the system’s behavior, particularly under varying control commands, such as those used for density control. Therefore, this study proposes the development of precise models and an advanced control algorithm to ensure the optimal performance of the GIS.
@@ -55,20 +57,20 @@ The rest of the paper is organized as follows: section \ref{sec:overview} gives 
 The GIS is composed of 10 Gas Valve Boxes (GVB),  6 at the divertor (bottom) level and 4 at the upper port level, (see Fig. \ref{fig:GIS}) \cite{GIS_2012}. Each GVB consisting of 6 Mass Flow Controlled (MFC) valves for different species, and the pipe system connecting the GVBs to the vacuum vessel (VV), Fig. \ref{fig:GIS_scheme}.
 \begin{figure}[!ht]
      \centering
-     \includegraphics[width=0.45\textwidth]{GIS_ip}
-     \caption{Location of 10 GVBs and injection points in the ITER Vacuum Vessel \cite{GIS_2012}}
+     \includegraphics[width=0.4\textwidth]{GIS_ip}
+     \caption{Location of 10 GVBs and injection points in the ITER Vacuum Vessel \cite{GIS_2012}.}
      \label{fig:GIS}
 \end{figure}
 \begin{figure}[!ht]
      \centering
-     \includegraphics[width=0.35\textwidth]{GIS_scheme.png}
-     \caption{GIS scheme includes 1 GVB, pipeline (17-40 m) and different injection points into the vacuum vessel}
+     \includegraphics[width=0.32\textwidth]{GIS_scheme.png}
+     \caption{GIS scheme includes 1 GVB, pipeline (17-40 m) and different injection points into the vacuum vessel.}
      \label{fig:GIS_scheme}
 \end{figure}
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.49\textwidth]{ctrl_scheme}
-    \caption{Proposed control scheme for the MFC valves}
+    \caption{Proposed control scheme for the MFC valves.}
     \label{fig:ctrlscheme}
 \end{figure}
 
@@ -78,12 +80,12 @@ In order to control the flow output of the MFC by regulating the voltage input o
 The MFC valves in the ITER GIS are solenoid actuated, normally closed valves, Fig. \ref{fig:valvesec}. 
 The dynamic model of the valves was divided into two main components: an electromechanical model for the the solenoid, and a flow characteristic that relates mechanical variables of the system to gas flow out of the valve.
 \subsection{Plunger dynamics model} \label{sec:plung}
-The linear solenoid actuator that operates the valve is modelled through the interaction of two subsystems: a mass-spring-damper, representing the mechanical portion of the actuator, and an RL circuit, for the electric part of the actuator. 
+The linear solenoid actuator that operates the valve is modeled through the interaction of two subsystems: a mass-spring-damper, representing the mechanical portion of the actuator, and an RL circuit, for the electric part of the actuator. 
 The interaction between these two subsystems is of electromagnetic nature. As the ferromagnetic plunger within the solenoid moves, the inductance of the RL cuircuit changes, and a magnetic force is exerted on the mass-spring-damper system based on the current flowing through the inductor. Following the port-Hamiltonian approach \cite{PHintro}, we may develop models for the two subsystems and then connect them.
 \begin{figure}[!ht]
     \centering
-     \includegraphics[width=0.4\textwidth]{valvesection}
-     \caption{Side section of an MFC valve}
+     \includegraphics[width=0.37\textwidth]{valvesection}
+     \caption{Side section of an MFC valve.}
      \label{fig:valvesec}
 \end{figure}
 \subsubsection{Mechanical subsystem}
@@ -131,9 +133,9 @@ The relation between position of the plunger in the solenoid and inductance is r
 \end{equation}
 
 \subsubsection{Coupling the subsystems}
-Following PH system theory the mechanical and electromechanical subsystems can be interconnected by considering a state space composed of the cartesian product of the state spaces of the subsystems, a Hamiltonian constructed as the sum of the subsystem Hamiltonians and interconnection and damping matrices composed with those of the subsystems. Dependance of the inductance on the plunger position gives the coupling between the mechanical and electrical physical domains.
+Following PH system theory, the mechanical and electromechanical subsystems can be interconnected by considering a state space composed of the cartesian product of the state spaces of the subsystems, a Hamiltonian constructed as the sum of the subsystem Hamiltonians, and interconnection and damping matrices composed with those of the subsystems. Dependance of the inductance on the plunger position gives the coupling between the mechanical and electrical physical domains.
 \begin{align}
-    &H(q,p,\varphi) = H_m + H_e = \frac{1}{2}kq^2 + \frac{1}{2m} p^2 + \frac{\varphi}{2 L(q)}\\
+    &H(q,p,\varphi) = H_m + H_e = \frac{1}{2}kq^2 + \frac{1}{2m} p^2 + \frac{\varphi^2}{2 L(q)}\\
     &J = \begin{bmatrix}
         J_m & 0 \\ 0 & J_e
     \end{bmatrix}  = \begin{bmatrix}
@@ -146,8 +148,8 @@ Following PH system theory the mechanical and electromechanical subsystems can b
     \end{bmatrix} = \begin{bmatrix}
         0 & 0 & 0 \\
         0 & b & 0\\
-        0 & 0 & 0
-    \end{bmatrix}
+        0 & 0 & R_c
+    \end{bmatrix}\label{valveJR}
 \end{align}
 The dynamic equations of the system can be expressed as
 
@@ -169,7 +171,7 @@ many of these parameters are unknown, and are therefore aggregated into a single
 \begin{align}
     Q = \xi_{gas}C_d\sqrt{\left(P_{up}^2-P_{down}^2\right)}
 \end{align}
-The parameter $\xi_{gas}$ is tuned so that with $C_d=1$ the flow out of the valve matches what observed from the experimental tests where the valve is fully opened. 
+The parameter $\xi_{gas}$ is tuned so that with $C_d=1$ the flow out of the valve matches that which is observed from the experimental tests where the valve is fully opened. 
 The discharge coefficient $C_d\in[0,1]$ is a function of the plunger position $q$. This function is identified by attempting to bridge the gap between experimental data and the mathematical model developed so far.
 \subsection{Flow sensor model}
 The MFC valve is equipped with a sensor to measure the flow rate, schematized in Fig. \ref{fig:sensor}. Part of the gas flowing through the valve flows through the sensor. The gas stream through the sensor is warmed up by two heaters ($\text{R}_{\text{HT1}}$ and $\text{R}_{\text{HT2}}$). When the valve is open, the gas transports heat from the first resistor to the second, causing a temperature difference between the two resistors, which is linearly dependent to mass flow rate \cite{sensor}:
@@ -179,10 +181,10 @@ The MFC valve is equipped with a sensor to measure the flow rate, schematized in
 \begin{figure}[!htb]
     \centering
     \includegraphics[width = 0.8\columnwidth]{flow_sensor}
-    \caption{Schematic of the MFC valve flow meter}
+    \caption{Schematic of the MFC valve flow meter.}
     \label{fig:sensor}
 \end{figure}
-Due to the physical phenomenon on which the sensor is based (heat transfer in a moving gas), the sensor presents a delayed response, which can be observed in experimental data as a time delay between the effect of opening the valve on sensed flow downstream of the valve. % as shown in Figure \ref{fig:sensslow}.
+Due to the physical phenomenon on which the sensor is based (heat transfer in a moving gas), the sensor presents a delayed response, which can be observed in the experimental data as a time delay between the effect of opening the valve and the sensed flow downstream of the valve. % as shown in Figure \ref{fig:sensslow}.
 %\begin{figure}[!htb]
 %    \centering
 %    \includegraphics[width = 0.45\textwidth]{D7_flow_press.pdf}
@@ -192,28 +194,28 @@ Due to the physical phenomenon on which the sensor is based (heat transfer in a 
 %    \label{fig:sensslow}
 %\end{figure}
 
-Since the a physical model for the sensor is too complicated for the scope of this paper, it was instead approximated as a simple low-pass filter applied to the mass flow rate through the valve, with its parameters determined experimentally. In particular, a Bessel filter was used due to its property of providing constant group delay in the passband \cite{filtering}.
+Since the physical model for the sensor is too complicated for the scope of this paper, it was instead approximated as a simple low-pass filter applied to the mass flow rate through the valve, with its parameters determined experimentally. In particular, a Bessel filter was used due to its property of providing constant group delay in the passband \cite{filtering}.
 The cutoff frequency for the low-pass filter can be expected to depend on properties of the gas being considered --- molar mass, flow rate, temperature, etc. In this case temperature is assumed to always be the same, while gas species and flow rates clearly vary. In particular, heavier gases flowing slower will make for slower sensing. A different cutoff frequency was tuned for each gas-valve pairing to account for this.
 
 \subsection{Comparison of the simulation model with experimental data}
 % Alessandro: I would put a sentence that explains how the parameters are determined from data
 % * <vu.nmtrang@gmail.com> 17:12:56 13 Mar 2025 UTC+0100:
 % if space allows
-The MFC valve model, including the plunger dynamics and the flow characteristic, with and without the flow sensor model has been validated against experimental data gathered on a testbench by SWIP, for different gas species, Fig. \ref{fig:mdl_H2} for $H_2$ and Fig. \ref{fig:mdl_Ar} for $Ar$, with different feedforward references of the input voltage. The results of simulation flow, red curves in the figures, represent the ideal flow at the MFC output, while the results of flow after sensor, green curves, take into account the delay due to the sensor measurement. The simulation results with simulated sensor match very well the experimental results. 
+The MFC valve model, including the plunger dynamics and the flow characteristic, with and without the flow sensor model has been validated against experimental data gathered on a testbench by SWIP, for different gas species, Fig. \ref{fig:mdl_H2} for $H_2$ and Fig. \ref{fig:mdl_Ar} for $Ar$, with different feedforward references of the input voltage. Model parameters were determined by systematically varying key model parameters and evaluating system performance through simulation. The results of simulation flow, red curves in the figures, represent the ideal flow at the MFC output, while the results of flow after sensor, green curves, take into account the delay due to the sensor measurement. The simulation results with simulated sensor match the experimental results very well. 
 % * <vu.nmtrang@gmail.com> 11:16:26 11 Mar 2025 UTC+0100:
 % I add some comments here to explain the figures
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.4\textwidth]{H2_model.pdf}
-    \caption{Comparison of simulated high flow valve with experimental data for $H_2$ }
+    \caption{Comparison of simulated high flow valve with experimental data for \protect$H_2\protect$. }
     \label{fig:mdl_H2}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.4\textwidth]{Ar_model.pdf}
-    \caption{Comparison of simulated high flow valve with experimental data for $Ar$}
+    \caption{Comparison of simulated high flow valve with experimental data for \protect$Ar\protect$.}
     \label{fig:mdl_Ar}
 \end{figure}
 
@@ -266,7 +268,7 @@ where $f_d$ is the discretized valve dynamics, obtained through the Runge-Kutta 
 
 %In Figure \ref{fig:flowhat} the behaviour of the observer with white noise on the flow measurement is displayed for a high flow valve, while in Figure \ref{fig:flowhat_F} the behaviour of the observer when a force step is applied to the plunger at $t=3s$ can be seen.
 %As can be seen in the disturbed case (Fig. \ref{fig:flowhat_F}) plunger momentum and flux linkage estimates do not converge to the real values. This is not a problem as the controller only needs to ensure that the plunger position reaches its reference to achieve the desired flow rate.
-The observer can perfectly estimate the system state with white noise on the flow measurement. With a disturbance of a force step applied to the plunger at $t=3s$ in Fig. \ref{fig:flowhat_F}, plunger momentum and flux linkage estimates do not converge to the real values. However, this offset does not impact the control effect, as the control law relies solely on the plunger position.
+The observer can perfectly estimate the system state with white noise on the flow measurement. With a disturbance of a force step applied to the plunger at $t=3$~\unit{s} in Fig. \ref{fig:flowhat_F}, plunger momentum and flux linkage estimates do not converge to the real values. However, this offset does not impact the control effect, as the control law relies solely on the plunger position to ensure the requested flow.
 
 %\begin{figure}[!ht]
 %    \includegraphics[width=0.48\textwidth]{combined_plots_obs.pdf}
@@ -275,15 +277,15 @@ The observer can perfectly estimate the system state with white noise on the flo
 %\end{figure}
 
 \begin{figure}[!ht]
-    \includegraphics[width=0.48\textwidth]{combined_plots_obs_F.pdf}
-    \caption{Observer estimates of valve states with disturbance step at $t=3s$}
+    \includegraphics[width=0.45\textwidth]{combined_plots_obs_F.pdf}
+    \caption{Observer estimates of valve states with disturbance step at \protect$t=3\protect$ \unit{s}.}
     \label{fig:flowhat_F}
 \end{figure}
 
 \subsection{Reference Generation}
 % * <vu.nmtrang@gmail.com> 16:02:51 10 Feb 2025 UTC+0100:
 % may put this subsec before the controller design?
-The designed controller is focused on regulating the plunger subsystem, tracking references for the plunger state as outlined in subsection \ref{sec:plung}. It is important to note that reference for the system is provided in terms of flow rate, while the reference for the plunger subsystem is the valve position. As a result, it is necessary to convert the flow reference into corresponding reference for the plunger state. This can be achieved by inverting the valve’s flow characteristic, \ref{sec:flow_charac} to determine the desired plunger position. The open-loop valve dynamics can then be solved to find the required steady-state flux linkage, and for static references, the desired momentum will be zero.
+The designed controller is focused on regulating the plunger subsystem, tracking references for the plunger state as outlined in subsection \ref{sec:plung}. It is important to note that reference for the system is provided in terms of flow rate, while the reference for the plunger subsystem is the valve position. As a consequence, it is necessary to convert the flow reference into corresponding reference for the plunger state. This can be achieved by inverting the valve’s flow characteristic, \ref{sec:flow_charac} to determine the desired plunger position. The open-loop valve dynamics can then be solved to find the required steady-state flux linkage, and for static references, the desired momentum will be zero.
 
 \subsection{Valve position control using IDA-PBC}
 Control is developed for the plunger model, the electromechanical subsystem described in subsection \ref{sec:plung}.
@@ -318,12 +320,12 @@ A general form for the desired interconnection skew symmetric ($J_d$) and non ne
 \end{aligned}\label{eq:JRd}
 \end{equation}
 % Alessandro: I would try to add a stability proof. Since the target is a journal and a rather theoretical conference, stating a result without a proof could be a risk.
-The stability of the closed loop is trivial:
-\begin{equation}
-    \begin{aligned}
-    \dot{H_{d}} = \frac{\partial^T H_{d}}{\partial x} \dot{x} &=& -\frac{\partial^T H_{d}}{\partial x} R_{d}\frac{\partial H}{\partial x}  \leq 0
-\end{aligned}\label{eq:IDA_stab}
-\end{equation}
+%The stability of the closed loop is trivially demonstrated by picking $H_d$ as a Lyapunov function:
+%\begin{equation}
+%    \begin{aligned}
+%    \dot{H_{d}} = \frac{\partial^T H_{d}}{\partial x} \dot{x} &=& -\frac{\partial^T H_{d}}{\partial x} R_{d}\frac{\partial H}{\partial x}  \leq 0
+%\end{aligned}\label{eq:IDA_stab}
+%\end{equation}
 
 The matching condition \eqref{eq:IDA_principle} between the original system and the target closed loop system characterised by (\ref{eq:Hd}-\ref{eq:JRd}) thus yields a set of two equations:
 \begin{equation}
@@ -340,41 +342,46 @@ Solving the matching equation yields the following:
     \end{aligned}
 \end{equation}
 leaving as freely assignable the parameters $\gamma_2$ and $r_3$, respectively related to closed loop magnetic energy storage and electric damping. The control law can be computed as 
-\begin{equation}
+\begin{equation}\label{ctrllaw}
     \begin{multlined}
         (g^\top g)^{-1}g^\top \left[ (J_{d}-R_{d}) \frac{\partial H_{d}}{\partial x} - (J-R) \frac{\partial H}{\partial x} \right] \\
         = -J_{2,3} \frac{p}{m} -r_{3}\gamma_{2}(\varphi -\varphi^\star) + \frac{R_{c}\varphi}{L(q)}
     \end{multlined}
 \end{equation}
-the control effort is singular for the desired equilibrium, in particular for $\varphi = \varphi^\star$. Note that in steady state, (one very relevant occasion in which $\varphi=\varphi^\star$), we would also have $p=0$. Solving the closed loop dynamics for steady state conditions, with the added caveat of considering $J_{23}=0$ when its denominator vanishes (thus giving a well defined value to the controller in that situation), yields the desired equilibrium. In practice, a threshold for $(\varphi-\varphi^\star)$ under which $J_{2,3}$ is set to 0 is chosen.
-
+the control effort is singular for the desired equilibrium, in particular for $\varphi = \varphi^\star$. Note that in steady state, (one very relevant occasion in which $\varphi=\varphi^\star$), we would also have $p=0$. Solving the closed loop dynamics for steady state conditions, with the added caveat of considering $J_{23}=0$ when its denominator vanishes (thus giving a well defined value to the controller in that situation), yields the desired equilibrium. In practice, a threshold for $(\varphi-\varphi^\star)$ under which $J_{2,3}$ is set to 0, is chosen.
+\begin{proposition}
+The PH system \eqref{valveJR}, \eqref{eq:plunger_original_PCH} under control law \eqref{ctrllaw} is asymptotically stable with stable point the prescribed state $(q^\star,0,\varphi^\star)$
+\end{proposition}
+\begin{proof}
+Follows trivially from Proposition 1 of \cite{IDAPBC} by noting that \eqref{eq:Hd} satisfies its conditions being quadratic with minumum in $x = (q^\star,0,\varphi^\star)$.
+\end{proof}
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.4\textwidth]{flow_steps_H2.pdf}
-    \caption{Result of IDA-PBC control on high flow valve with $H_2$}
+    \caption{Result of IDA-PBC control on high flow valve with \protect$H_2\protect$.}
     \label{fig:ctrlsteps_H2}
 \end{figure}
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.4\textwidth]{flow_steps_Ar.pdf}
-    \caption{Result of IDA-PBC control on low flow valve with $Ar$}
+    \caption{Result of IDA-PBC control on low flow valve with \protect$Ar\protect$.}
     \label{fig:ctrlsteps_Ar}
 \end{figure}
 
 
-The resilience of the system to steady state disturbances was also tested. A step force is applied to the valve plunger at $t=3s$, and as can be seen in Figs. \ref{fig:ctrldist_H2} and \ref{fig:ctrldist_Ar} the system converges back to the desired equilibrium.
+The resilience of the system to steady state disturbances was also tested. A step force is applied to the valve plunger at $t=3$~\unit{s}, and as can be seen in Figs. \ref{fig:ctrldist_H2} and \ref{fig:ctrldist_Ar} the system converges back to the desired equilibrium. However, the offset at the end of the simulation caused by these artificial disturbances cannot be corrected because the valve is already fully closed.
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.4\textwidth]{flow_dist_H2.pdf}
-    \caption{High flow valve with step force disturbance at $t=3s$, $H_2$}
+    \includegraphics[width=0.4\textwidth]{flow_steps_H2_F.pdf}
+    \caption{High flow valve with step force disturbance at \protect$t=3\protect$~\unit{s}, \protect$H_2\protect$.}
     \label{fig:ctrldist_H2}
 \end{figure}
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.4\textwidth]{flow_dist_Ar.pdf}
-    \caption{Low flow valve with step force disturbance at $t=3s$, $Ar$}
+    \includegraphics[width=0.4\textwidth]{flow_steps_Ar_F.pdf}
+    \caption{Low flow valve with step force disturbance at \protect$t=3\protect$~\unit{s}, \protect$Ar\protect$.}
     \label{fig:ctrldist_Ar}
 \end{figure}
 
@@ -384,15 +391,14 @@ The pipe model is then connected to the MFC model in the PCSSP. Fig. \ref{fig:ct
 % may put the following figures into 1 plot, to save space
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.35\textwidth]{ctrlsteps_H2_pipeout.png}
-    \includegraphics[width=0.35\textwidth]{ctrlsteps_Ar_pipeout.png}
+    \includegraphics[width=0.4\textwidth]{flow_out}
     \caption{Flow at the pipe output for $H_2$ (top) and $Ar$ (bottom)}
     \label{fig:ctrlstep_pipeout}
 \end{figure}
 
 
 \section{Conclusions}\label{sec:conclusion}
-This paper presents a dynamic model of solenoid-actuated MFC valves intended for use in the ITER GIS system, as well as a model for the piping connecting the valves to the vacuum vessel. An observer and controller for the MFC valve were developed, tested in simulation, and their performance and robustness to disturbances were successfully validated. The proposed control strategy demonstrates superior effectiveness compared to a PID controller, particularly in scenarios where flow sensor limitations are most significant, such as in the case of low-flow valves, by minimizing overshoot.
+This paper presents a dynamic model of solenoid-actuated MFC valves intended for use in the ITER GIS system, as well as a model for the piping connecting the valves to the vacuum vessel, which were validated against experimental data. An observer and controller for the MFC valve were developed, tested in simulation, and their performance and robustness to disturbances were successfully validated. The proposed control strategy demonstrates superior effectiveness compared to a PID controller, particularly in scenarios where flow sensor limitations are most significant, such as in the case of low-flow valves, by minimizing overshoot.
 
 \bibliographystyle{IEEEtran} 
 \bibliography{refs} % Entries are in the refs.bib file
